@@ -1,0 +1,876 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Recommendations</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --background-color: rgba(102, 172, 204, 0.336);
+            --text-color: #333;
+            --card-bg: #fff;
+            --header-bg:#fff;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --border-color: #e0e0e0;
+            --nav-bg:#c0e6ffac;
+        }
+
+        .dark-mode {
+            --primary-color: #9b59b6;
+            --secondary-color: #8e44ad;
+            --background-color: #1a1a1a;
+            --text-color: #f5f5f5;
+            --card-bg: #2d2d2d;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --border-color: #444;
+            --nav-bg:#f7e2ff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background-color: var(--card-bg); 
+
+            box-shadow: 0 2px 5px var(--shadow-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-text {
+            font-size: 45px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .menu-toggle {
+            display: none;
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .search-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-input {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            background-color: var(--background-color);
+            color: var(--text-color);
+            width: 200px;
+            transition: width 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            width: 250px;
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 10px;
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+        }
+
+        .nav-item {
+            text-decoration: none;
+            color: var(--text-color);
+            transition: color 0.3s;
+        }
+
+        .nav-item:hover {
+            color: var(--primary-color);
+        }
+
+        .nav-cta {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .nav-cta:hover {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: var(--primary-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .books-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            padding: 1rem;
+        }
+
+        .book-card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px var(--shadow-color);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .book-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px var(--shadow-color);
+        }
+
+        .book-cover {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .book-info {
+            padding: 1rem;
+        }
+
+        .book-title {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+            font-weight: 600;
+            display: -webkit-box;
+            -webkit-line-clamp:2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .book-author {
+            color: var(--text-color);
+            opacity: 0.8;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .book-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.5rem;
+        }
+
+        .book-rating {
+            color: #f39c12;
+            font-weight: bold;
+        }
+
+        .book-price {
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .badge-bestseller {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .badge-editorspick {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .badge-unlimited {
+            background-color: #2ecc71;
+            color: white;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            overflow: auto;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            margin: 5% auto;
+            padding: 1.5rem;
+            border-radius: 8px;
+            max-width: 800px;
+            width: 90%;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .close {
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+
+        .modal-body {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        .modal-left {
+            flex: 1;
+        }
+
+        .modal-left img {
+            width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            border-radius: 5px;
+        }
+
+        .modal-right {
+            flex: 2;
+        }
+
+        .modal-right h2 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-right p {
+            margin-bottom: 0.5rem;
+        }
+
+        .rating {
+            display: flex;
+            align-items: center;
+            margin: 0.5rem 0;
+        }
+
+        .stars {
+            color: #f39c12;
+            margin-right: 0.5rem;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            text-decoration: none;
+            margin-top: 1rem;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        /* Filters */
+        .filters {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .filter-group select {
+            padding: 0.5rem;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+            color: var(--text-color);
+        }
+
+        .pagination-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 1rem;
+        margin: 2rem 0;
+    }
+
+    .pagination-numbers {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .page-number {
+        padding: 0.5rem 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s;
+        background-color: var(--card-bg);
+        color: var(--text-color);
+    }
+
+    .page-number.active {
+        background-color: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
+
+    .pagination-arrow {
+        background: none;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        color: var(--text-color);
+        transition: all 0.3s;
+    }
+
+    .pagination-arrow:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+    }
+
+    .pagination-arrow:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background-color: var(--card-bg);
+                flex-direction: column;
+                padding: 1rem;
+                box-shadow: 0 2px 5px var(--shadow-color);
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .search-container {
+                width: 100%;
+                margin-bottom: 1rem;
+            }
+
+            .search-input {
+                width: 100%;
+            }
+
+            .search-input:focus {
+                width: 100%;
+            }
+
+            .modal-body {
+                flex-direction: column;
+            }
+
+            .books-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+        }
+
+        @media (max-width: 480px) {
+            .books-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <span class="logo-text">Read<>Nest</span>
+        </div>
+
+        <div class="menu-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+
+        <div class="nav-links">
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search books">
+                <button class="search-btn"><i class="fas fa-search"></i></button>
+            </div>
+            <!-- <a href="aboutpage.html" class="nav-item">About</a> -->
+            <a href="/about" class="nav-item">About Us</a> 
+            <a href="/contact" class="nav-item">Contact Us</a>
+            <button id="theme-toggle" class="theme-toggle" style="color: #3f37c9;">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+    </nav>
+
+    <main class="container">
+        <header>
+            <h1>Book Recommendations</h1>
+        </header>
+        
+        <div class="filters">
+            <div class="filter-group">
+                <label for="sort-by">Sort By</label>
+                <select id="sort-by">
+                    <option value="rating-desc">Highest Rating</option>
+                    <option value="rating-asc">Lowest Rating</option>
+                    <option value="price-desc">Highest Price</option>
+                    <option value="price-asc">Lowest Price</option>
+                    <option value="date-desc">Newest</option>
+                    <option value="date-asc">Oldest</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="filter-category">Filter By</label>
+                <select id="filter-category">
+                    <option value="all">All Books</option>
+                    <option value="bestseller">Best Sellers</option>
+                    <option value="editorspick">Editor's Picks</option>
+                    <option value="unlimited">Kindle Unlimited</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="price-range">Price Range</label>
+                <select id="price-range">
+                    <option value="all">All Prices</option>
+                    <option value="0-5">$0 - $5</option>
+                    <option value="5-10">$5 - $10</option>
+                    <option value="10-15">$10 - $15</option>
+                    <option value="15+">$15+</option>
+                </select>
+            </div>
+        </div>
+        
+        <div id="books-container" class="books-grid"></div>
+    </main>
+
+    <div id="book-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="modal-body">
+                <div class="modal-left">
+                    <img id="modal-img" src="" alt="Book cover">
+                </div>
+                <div class="modal-right">
+                    <h2 id="modal-title"></h2>
+                    <p id="modal-author"></p>
+                    <div class="rating">
+                        <div class="stars" id="modal-stars"></div>
+                        <span id="modal-rating"></span>
+                    </div>
+                    <p><strong>Price:</strong> $<span id="modal-price"></span></p>
+                    <p><strong>Published:</strong> <span id="modal-date"></span></p>
+                    <p><strong>Sold by:</strong> <span id="modal-seller"></span></p>
+                    <a id="modal-link" href="#" target="_blank" class="btn">View on Amazon</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="pagination-container">
+        <button id="prev-page" class="pagination-arrow">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <div id="pagination-numbers" class="pagination-numbers"></div>
+        <button id="next-page" class="pagination-arrow">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+    </div>
+
+    <script>
+
+    // State variables
+    let currentPage = 1;
+    const booksPerPage = 20;
+    let totalBooks = 0;
+    let bookData = []; // Stores all books
+
+    // DOM elements
+    const booksContainer = document.getElementById('books-container');
+    const searchInput = document.querySelector('.search-input');
+    const searchBtn = document.querySelector('.search-btn');
+    const sortBy = document.getElementById('sort-by');
+    const filterCategory = document.getElementById('filter-category');
+    const priceRange = document.getElementById('price-range');
+    const modal = document.getElementById('book-modal');
+    const closeBtn = document.querySelector('.close');
+    const modalImg = document.getElementById('modal-img');
+    const modalTitle = document.getElementById('modal-title');
+    const modalAuthor = document.getElementById('modal-author');
+    const modalStars = document.getElementById('modal-stars');
+    const modalRating = document.getElementById('modal-rating');
+    const modalPrice = document.getElementById('modal-price');
+    const modalDate = document.getElementById('modal-date');
+    const modalSeller = document.getElementById('modal-seller');
+    const modalLink = document.getElementById('modal-link');
+    const themeToggle = document.getElementById('theme-toggle');
+    const menuToggle = document.querySelector('.menu-toggle');
+    const navLinks = document.querySelector('.nav-links');
+    const prevPageBtn = document.getElementById('prev-page');
+    const nextPageBtn = document.getElementById('next-page');
+    const paginationNumbers = document.getElementById('pagination-numbers');
+
+    const fetchData = async () => {
+        try {
+            const res = await fetch("http://127.0.0.1:5000/api/books");
+            if (!res.ok) throw new Error(`Failed to get data: ${res.status}`);
+            return await res.json();
+        } catch (error) {
+            console.error("Error fetching data:", error);
+            throw error;
+        }
+    };
+
+    const main = async() => {
+        const booksData = await fetchData();
+        bookData = booksData.books.flat();
+        totalBooks = bookData.length;
+        
+        initializeEventListeners();
+        setupPagination();
+        performSearch();
+    };
+
+    function initializeEventListeners() {
+        searchBtn.addEventListener('click', () => {
+            currentPage = 1;
+            performSearch();
+        });
+        
+        searchInput.addEventListener('keyup', e => {
+            if (e.key === 'Enter') performSearch();
+        });
+
+        [sortBy, filterCategory, priceRange].forEach(element => {
+            element.addEventListener('change', () => {
+                currentPage = 1;
+                performSearch();
+            });
+        });
+
+        closeBtn.addEventListener('click', () => modal.style.display = 'none');
+        window.addEventListener('click', e => e.target === modal && (modal.style.display = 'none'));
+        themeToggle.addEventListener('click', toggleTheme);
+        menuToggle.addEventListener('click', () => navLinks.classList.toggle('active'));
+    }
+
+    function toggleTheme() {
+        document.body.classList.toggle('dark-mode');
+        const icon = themeToggle.querySelector('i');
+        icon.classList.toggle('fa-moon', !document.body.classList.contains('dark-mode'));
+        icon.classList.toggle('fa-sun', document.body.classList.contains('dark-mode'));
+    }
+
+    function performSearch() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const categoryFilter = filterCategory.value;
+        const priceFilter = priceRange.value;
+
+        let filteredBooks = bookData.filter(book => {
+            const matchesSearch = book.title?.toLowerCase().includes(searchTerm) || 
+                                book.author?.toLowerCase().includes(searchTerm);
+            const matchesCategory = checkCategory(book, categoryFilter);
+            const matchesPrice = checkPrice(book.price, priceFilter);
+            return matchesSearch && matchesCategory && matchesPrice;
+        });
+
+        filteredBooks = sortBooks(filteredBooks, sortBy.value);
+        totalBooks = filteredBooks.length;
+        displayBooks(paginateResults(filteredBooks));
+        updatePagination();
+    }
+    
+
+    function checkCategory(book, category) {
+        switch (category) {
+            case 'bestseller': return book.isBestSeller;
+            case 'editorspick': return book.isEditorsPick;
+            case 'unlimited': return book.isKindleUnlimited;
+            default: return true;
+        }
+    }
+
+    function checkPrice(price, range) {
+        const priceValue = parseFloat(price);
+        switch (range) {
+            case '0-5': return priceValue <= 5;
+            case '5-10': return priceValue > 5 && priceValue <= 10;
+            case '10-15': return priceValue > 10 && priceValue <= 15;
+            case '15+': return priceValue > 15;
+            default: return true;
+        }
+    }
+
+    function sortBooks(books, sortValue) {
+        return books.sort((a, b) => {
+            switch (sortValue) {
+                case 'rating-desc': return b.stars - a.stars;
+                case 'rating-asc': return a.stars - b.stars;
+                case 'price-desc': return b.price - a.price;
+                case 'price-asc': return a.price - b.price;
+                case 'date-desc': return new Date(b.publishedDate) - new Date(a.publishedDate);
+                case 'date-asc': return new Date(a.publishedDate) - new Date(b.publishedDate);
+                default: return 0;
+            }
+        });
+    }
+
+    function paginateResults(filteredBooks) {
+        const startIndex = (currentPage - 1) * booksPerPage;
+        return filteredBooks.slice(startIndex, startIndex + booksPerPage);
+    }
+
+    function setupPagination() {
+        prevPageBtn.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                performSearch();
+            }
+        });
+
+        nextPageBtn.addEventListener('click', () => {
+            if (currentPage < totalPages()) {
+                currentPage++;
+                performSearch();
+            }
+        });
+    }
+
+    function updatePagination() {
+        paginationNumbers.innerHTML = '';
+        const totalPages = Math.ceil(totalBooks / booksPerPage);
+        const maxVisiblePages = 5;
+        let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages/2));
+        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+        if (endPage - startPage < maxVisiblePages - 1) {
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+
+        for (let page = startPage; page <= endPage; page++) {
+            const pageBtn = document.createElement('button');
+            pageBtn.className = `page-number ${page === currentPage ? 'active' : ''}`;
+            pageBtn.textContent = page;
+            pageBtn.addEventListener('click', () => {
+                currentPage = page;
+                performSearch();
+            });
+            paginationNumbers.appendChild(pageBtn);
+        }
+
+        prevPageBtn.disabled = currentPage === 1;
+        nextPageBtn.disabled = currentPage === totalPages || totalPages === 0;
+    }
+
+    function totalPages() {
+        return Math.ceil(totalBooks / booksPerPage);
+    }
+
+    function displayBooks(books) {
+        booksContainer.innerHTML = books.length > 0 ? '' : '<div class="no-results">No books found matching your criteria.</div>';
+        
+        books.forEach(book => {
+            const bookCard = document.createElement('div');
+            bookCard.className = 'book-card';
+            
+            let badgesHtml = '';
+            if (book.isBestSeller) badgesHtml += '<span class="badge badge-bestseller">Bestseller</span>';
+            if (book.isEditorsPick) badgesHtml += '<span class="badge badge-editorspick">Editor\'s Pick</span>';
+            if (book.isKindleUnlimited) badgesHtml += '<span class="badge badge-unlimited">Kindle Unlimited</span>';
+            
+            bookCard.innerHTML = `
+                <img src="${book.imgUrl}" alt="${book.title}" class="book-cover">
+                <div class="book-info">
+                    <h3 class="book-title">${book.title}</h3>
+                    <p class="book-author">${book.author}</p>
+                    ${badgesHtml}
+                    <div class="book-meta">
+                        <span class="book-rating">⭐ ${book.stars}</span>
+                        <span class="book-price">$${book.price.toFixed(2)}</span>
+                    </div>
+                </div>
+            `;
+
+            bookCard.addEventListener('click', () => showBookModal(book));
+            booksContainer.appendChild(bookCard);
+        });
+    }
+
+    function showBookModal(book) {
+        modalImg.src = book.imgUrl;
+        modalImg.alt = book.title;
+        modalTitle.textContent = book.title;
+        modalAuthor.textContent = `by ${book.author}`;
+        
+        modalStars.innerHTML = '';
+        const fullStars = Math.floor(book.stars);
+        const hasHalfStar = book.stars % 1 >= 0.5;
+        
+        for (let i = 0; i < 5; i++) {
+            const star = document.createElement('i');
+            star.className = i < fullStars ? 'fas fa-star' : 
+                           (i === fullStars && hasHalfStar) ? 'fas fa-star-half-alt' : 'far fa-star';
+            modalStars.appendChild(star);
+        }
+        
+        modalRating.textContent = ` ${book.stars} (${book.reviews} reviews)`;
+        modalPrice.textContent = book.price.toFixed(2);
+        modalDate.textContent = book.publishedDate;
+        modalSeller.textContent = book.soldBy;
+        modalLink.href = book.productURL;
+        modal.style.display = 'block';
+    }
+
+    // Initialize the application
+    main();
+      </script>
+</body>
+<footer style="background-color: #2c3e50; color: #ecf0f1; padding: 3rem 2rem; margin-top: auto;">
+    <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem;">
+        <div>
+            <div style="font-size: 2rem; font-weight: bold; color: #3498db; margin-bottom: 1rem;">Read<>Nest</div>
+            <p style="font-style: italic; opacity: 0.9;">Making book discovery easier, one recommendation at a time.</p>
+            <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                <a href="#" aria-label="Facebook" style="color: #ecf0f1; font-size: 1.2rem; transition: color 0.3s;"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" aria-label="Twitter" style="color: #ecf0f1; font-size: 1.2rem; transition: color 0.3s;"><i class="fab fa-twitter"></i></a>
+                <a href="#" aria-label="Instagram" style="color: #ecf0f1; font-size: 1.2rem; transition: color 0.3s;"><i class="fab fa-instagram"></i></a>
+                <a href="#" aria-label="Pinterest" style="color: #ecf0f1; font-size: 1.2rem; transition: color 0.3s;"><i class="fab fa-pinterest"></i></a>
+            </div>
+        </div>
+        
+        <!-- Rest of your footer columns remain the same -->
+        <div>
+            <h3 style="font-size: 1.2rem; margin-bottom: 1.5rem; position: relative; padding-bottom: 0.5rem;">Quick Links</h3>
+            <ul style="list-style: none;">
+                <li style="margin-bottom: 0.8rem;"><a href="/" style="color: #ecf0f1; text-decoration: none; transition: color 0.3s; opacity: 0.8;">Home</a></li>
+                <li style="margin-bottom: 0.8rem;"><a href="/about" style="color: #ecf0f1; text-decoration: none; transition: color 0.3s; opacity: 0.8;">About Us</a></li>
+                <li style="margin-bottom: 0.8rem;"><a href="/contact" style="color: #ecf0f1; text-decoration: none; transition: color 0.3s; opacity: 0.8;">Contact Us</a></li>
+                <li style="margin-bottom: 0.8rem;"><a href="/privacy" style="color: #ecf0f1; text-decoration: none; transition: color 0.3s; opacity: 0.8;">Privacy Policy</a></li>
+                <li style="margin-bottom: 0.8rem;"><a href="/terms" style="color: #ecf0f1; text-decoration: none; transition: color 0.3s; opacity: 0.8;">Terms of Service</a></li>
+            </ul>
+        </div>
+        
+        <div>
+            <h3 style="font-size: 1.2rem; margin-bottom: 1.5rem; position: relative; padding-bottom: 0.5rem;">Categories</h3>
+            <ul style="list-style: none;">
+                <li style="margin-bottom: 0.8rem;"><a href="/category/bestsellers" style="color: #ecf0f1; text-decoration: none; transition: color 0.3s; opacity: 0.8;">Best Sellers</a></li>
+                <li style="margin-bottom: 0.8rem;"><a href="/category/new-releases" style="color: #ecf0f1; text-decoration: none; transition: color 0.3s; opacity: 0.8;">New Releases</a></li>
+                <li style="margin-bottom: 0.8rem;"><a href="/category/fiction" style="color: #ecf0f1; text-decoration: none; transition: color 0.3s; opacity: 0.8;">Fiction</a></li>
+                <li style="margin-bottom: 0.8rem;"><a href="/category/non-fiction" style="color: #ecf0f1; text-decoration: none; transition: color 0.3s; opacity: 0.8;">Non-Fiction</a></li>
+                <li style="margin-bottom: 0.8rem;"><a href="/category/kindle-unlimited" style="color: #ecf0f1; text-decoration: none; transition: color 0.3s; opacity: 0.8;">Kindle Unlimited</a></li>
+            </ul>
+        </div>
+        
+        <div>
+            <h3 style="font-size: 1.2rem; margin-bottom: 1.5rem; position: relative; padding-bottom: 0.5rem;">Contact Info</h3>
+            <ul style="list-style: none;">
+                <li style="margin-bottom: 0.8rem;"><i class="fas fa-map-marker-alt"></i> KIIT_SOEE (CAMPUS 12)</li>
+                <li style="margin-bottom: 0.8rem;"><i class="fas fa-phone"></i> (+91) 999-9999999</li>
+                <li style="margin-bottom: 0.8rem;"><i class="fas fa-envelope"></i> info_Mybook_KIIT@readnest.com</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div style="text-align: center; padding-top: 2rem; margin-top: 2rem; border-top: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.9rem; opacity: 0.8;">
+        <p>&copy; 2025 Read<>Nest. All rights reserved.</p>
+    </div>
+</footer>
+
+<style>
+    footer a:hover {
+        color: #3498db !important;
+        opacity: 1 !important;
+    }
+    footer .social-links a:hover {
+        color: #3498db !important;
+    }
+</style>
+</html> 
