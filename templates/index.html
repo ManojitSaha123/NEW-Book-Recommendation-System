@@ -600,7 +600,7 @@
 
     const fetchData = async () => {
         try {
-            const res = await fetch("http://127.0.0.1:5000/api/books");
+            const res = await fetch("https://readnest-b3x1.onrender.com//api/books");
             if (!res.ok) throw new Error(`Failed to get data: ${res.status}`);
             return await res.json();
         } catch (error) {
