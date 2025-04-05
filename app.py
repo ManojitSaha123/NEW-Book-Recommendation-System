@@ -119,11 +119,12 @@ def recommend():
         print(f"Recommendation Error: {str(e)}")
         return jsonify({"error": "Internal server error"}), 500
 
+# At the bottom of app.py, replace with:
 if __name__ == '__main__':
-    # Create directories if they don't exist
-    os.makedirs('templates', exist_ok=True)
-    os.makedirs('static/css', exist_ok=True)
-    os.makedirs('static/js', exist_ok=True)
-    
-    # Run the app
-    app.run()
+    port = int(os.environ.get("PORT", 5000))
+    # Create directories if they don't exist (only in development)
+    if os.environ.get("ENV") != "production":
+        os.makedirs('templates', exist_ok=True)
+        os.makedirs('static/css', exist_ok=True)
+        os.makedirs('static/js', exist_ok=True)
+    app.run(host='0.0.0.0', port=port)
